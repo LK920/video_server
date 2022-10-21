@@ -1,6 +1,7 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
 import FormData from 'form-data';
+import AdmZip from 'adm-zip';
 
 import NodeCache from "node-cache"; 
 import fetch from 'node-fetch';
@@ -71,22 +72,19 @@ app.post('/thumbnails', async (req, res)=>{
         }else{
             const thumbPath = filePath+'thumb/';
             const a = await createThumbs(filePath+'test.mp4', thumbPath);
-            const form = new FormData();
-            fs.readdir(a, (err, data)=>{
-                if(err){
-                    console.log(err);
-                }
-                
-                data.forEach(el =>{
-                    fs.readFile(a+el, (err, content)=>{
-                        form.append(el.split('.')[0], content);
-                    });
-                });
-                res.writeHead(200, {
-                    'Content-type' : 'multipart/form-data'
-                });
-                console.log(form);
+            const zip = new AdmZip();
+            console.log(a);
+            zip.addLocalFolder(a);
+            const zipFileContents = zip.toBuffer();
+            const fileName = 'thumbs.zip';
+            const fileType = 'application/zip';
+
+            res.writeHead(200, {
+                'Content-Disposition' : `attachment; filename=${fileName}`,
+                'Content-type' : fileType
             });
+
+            res.end(zipFileContents);
 
         }
         
