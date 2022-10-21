@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="/public/css/app.css">
+    <!-- <link rel="shortcut icon" href="/public/img/icons/icons8-bear-48.png" /> -->
+    <link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
+    <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <!--  -->
+    <title>Document</title>
+</head>
+<body>
+    <div class="header">
+        <h1>비디오</h1>
+        <div class="file_area">
+            <div class="file_select_box">
+                <div class="file_button_group">
+                    <input type="file" id="file-input" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="main">
+        <div class="video_editor_area">
+            <div class="video_editor_content">
+                <div class="file_name">파일 이름</div>
+                <div class="video_editor_component">
+                    <div class="video_area" style="width: 202.5px; height: 360px;">
+                        <div class="video_component">
+                            <video-js id="player" class="vjs-default-skin vjs-big-play-centered" width="202.5" height="360px" controls></video-js>
+                        </div>
+                    </div>
+                    <div class="video_thumnail_container ">
+                        <!-- 프레임  -->
+                        <div class="video_storyboard boxing red">
+                            <div class="frames">
+                                <img id="thumbnail" src="" alt="">
+                            </div>
+                        </div>
+                        <!-- 컨트롤 박스 -->
+                        <div class="components_bars boxing green">
+                            <div class="mask left" style="width: 0%;"></div>
+                            <div class="mast right" style="width: 0%;"></div>
+                            <div class="progress-output" style="left: 0%;">
+                                <div class="progress-line"></div>
+                            </div>
+                            <div class="control-bars-wrapper" style="left: 0%; right: 0%; ">
+                                <div class="control-bar cb-left" ></div>
+                                <div class="control-bar cb-right" ></div>
+                                <div class="selected-range-output"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="loading">썸네일 유효성 검사중...</div>
+    <div class="contents_edit">
+        <div class="edit">
+            <div class="edit-range">
+                <span> 시작 시간 : </span> <input type="text" class="edit-range-start" placeholder="시작 시간 입력"></br/>
+                <span> 종료 시간 : </span> <input type="text" class="edit-range-end" placeholder="종료 시간 입력"></br/>
+            </div>
+            <div>
+                <button type="button" class="generate_video">생성</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script src="/public/js/client.js"></script>
