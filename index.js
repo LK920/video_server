@@ -1,7 +1,6 @@
 import express from 'express';
 import fileUpload from 'express-fileupload';
-import FormData from 'form-data';
-import AdmZip from 'adm-zip';
+import JSZip from 'jszip';
 
 import NodeCache from "node-cache"; 
 import fetch from 'node-fetch';
@@ -11,7 +10,6 @@ import path from 'path';
 import cors from 'cors';
 
 import { procTest, test, createThumbs } from './public/js/processController.js';
-
 
 const app = express();
 const cache = new NodeCache({stdTTL : 15});
@@ -52,6 +50,13 @@ app.get('/test', (req, res)=>{
     test();
 });
 
+app.get('/zip', (req, res)=>{
+    fs.readFile('./public/view/jszip.html', (err, data)=>{
+        res.writeHead(200, {'Content-type' : 'text/html'});
+        res.end(data);
+    });
+})
+
 app.get('/', (req, res)=>{
     fs.readFile('./public/view/client.html', (err, data)=>{
         if(err){
@@ -66,34 +71,60 @@ app.get('/', (req, res)=>{
 
 app.post('/thumbnails', async (req, res)=>{
     const file = req.files.video;
+    
     file.mv(`${filePath}test.mp4`, async (err)=>{
         if(err){
             return res.status(500).send(err);
         }else{
             const thumbPath = filePath+'thumb/';
-            const a = await createThumbs(filePath+'test.mp4', thumbPath);
-            const zip = new AdmZip();
-            console.log(a);
-            zip.addLocalFolder(a);
-            const zipFileContents = zip.toBuffer();
-            const fileName = 'thumbs.zip';
-            const fileType = 'application/zip';
-
-            res.writeHead(200, {
-                'Content-Disposition' : `attachment; filename=${fileName}`,
-                'Content-type' : fileType
-            });
-
-            res.end(zipFileContents);
-
+            const status = await createThumbs(filePath+'test.mp4', thumbPath);
+            fs.unlinkSync(filePath+'test.mp4');
+            if(status == 200){
+                const zip = new JSZip();
+                // 파일 목록 읽기
+                fs.readdir(thumbPath, (error, fileList)=>{
+                    if(error){
+                        res.status(500).send(error);
+                    }else{
+                        //파일 압축하기
+                        fileList.forEach(el=>{
+                            // image to binary
+                            const fileName = el;
+                            let data = fs.readFileSync(thumbPath+fileName);
+                            zip.file(fileName, data, {base64: true});
+                            fs.unlinkSync(thumbPath+fileName);
+                        });
+                        
+                        // node에선 blob 지원하지 않음
+                        zip.generateAsync({type:'nodebuffer'}).then((zipData)=>{
+                            res.writeHead(200, {
+                                'Content-Disposition' : `attachment; filename=thumb.zip`,
+                                'Content-type' : 'application/zip'
+                            });
+    
+                            res.write(zipData);
+                            res.end();
+                        });
+                    }
+                });
+            }else{
+                res.status(500).send('No thumbs');
+            }
         }
         
     });
     
 });
 
-app.get('/removeFile', (req, res)=>{
-    
+app.get('/timeline', (req, res)=>{
+    fs.readFile('./public/view/timeline.html', (err, data)=>{
+        if(err){
+            console.log(err);
+            return res.status(500).send('<h1>500   ERROR</h1>')
+        }
+        res.writeHead(200, {"Content-Type" : 'text/html'});
+        res.end(data);
+    });
 })
 
 app.post('/upload', async (req, res)=>{
@@ -107,14 +138,14 @@ app.post('/upload', async (req, res)=>{
             return res.status(500).send(err);
         }else{
             const outputPath = await procTest(savePath, start, duration, filePath);
-            console.log(outputPath);
             fs.readFile(outputPath, (err, content)=>{
                 res.writeHead(200, {
                     'Content-type' : 'video/mp4',
                     "Content-dispostion" : `attachment; filename=output.mp4`
                 });
-                
                 res.end(Buffer.from(content));
+                fs.unlinkSync(savePath);
+                fs.unlinkSync(outputPath);
             });
         }
     });

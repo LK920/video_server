@@ -16,6 +16,8 @@
     "express-fileupload": "^1.4.0",
     "fluent-ffmpeg": "^2.1.2",
     "form-data": "^4.0.0",
+    "jszip": "^3.10.1",
+    "jszip-utils": "^0.1.0",
     "node-cache": "^5.1.2",
     "node-fetch": "^3.2.10"
   }

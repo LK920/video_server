@@ -22,7 +22,7 @@ async function createThumbs (input, thumb){
         const commandLine = `-y -i ${input} -vf fps=1 ${thumb}thumb_%02d.png`;
         const command = commandLine.split(' ');
         spawn('ffmpeg', command).on('close', ()=>{
-            resolve(thumb);
+            resolve(200);
         });
     });
 }
